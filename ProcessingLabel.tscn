@@ -1,0 +1,31 @@
+[gd_scene format=1]
+
+[node name="WindowDialog" type="WindowDialog"]
+
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+margin/left = 2.0
+margin/top = -6.0
+margin/right = 288.0
+margin/bottom = 91.0
+popup/exclusive = false
+window/title = ""
+
+[node name="Label" type="Label" parent="."]
+
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 0
+margin/left = 4.0
+margin/top = 14.0
+margin/right = 284.0
+margin/bottom = 73.0
+text = "Processing"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+
