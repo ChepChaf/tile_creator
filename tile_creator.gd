@@ -62,30 +62,34 @@ func _on_dialog_confirmed():
 	thread.wait_to_finish()
 
 func image_divide(imagepath):
-	print("Image Divide")
-	var image_tex = ImageTexture.new()
-	print("Created image texture")
-	image_tex.load(imagepath)
-	print("Loaded  image texture")
-	# the get_data is not working !
-	#var image = image_tex.get_data()
-	#print("Create image")
+	print("Create image")
+	var image = Image()
+	image.load(imagepath)
+
 	var r = 0
 	var i = 0
 	#total = image.get_width() / tile_size_x * image.get_width() / tile_size_y
-	while i < image_tex.get_width():
-		print(str("Looping i: ", i))
+	while i < image.get_height():
 		var j = 0
 		r += 1
 		var c = 0
-		while j < image_tex.get_height():
-			print(str("Looping j: ", j))
+		while j < image.get_width():
 			#actual = r + c
-			if not check_image_empty(image_tex, i, j):
+			
+			if not check_image_empty(image, j, i):
+				
+				#print("Creating image texture")
+				#var image_tex = ImageTexture.new()
+				#image_tex.create_from_image(image)
+				#print("Created")
+				
+				print("Creating Sprite")
 				var s = Sprite.new()
-				s.set_texture(image_tex)
+				print("Created")
+				
+				s.set_texture(image) # Change to image_tex if it doesn't works
 				s.set_region(true)
-				s.set_region_rect(Rect2(i, j, tile_size_x, tile_size_y))
+				s.set_region_rect(Rect2(j, i, tile_size_x, tile_size_y))
 				root.add_child(s)
 				var pos = Vector2(r * (tile_size_x + 10), c * (tile_size_y + 10))
 				c += 1
@@ -94,13 +98,14 @@ func image_divide(imagepath):
 			j += tile_size_y
 		i += tile_size_x
 
-func check_image_empty(image_tex, x, y):
+func check_image_empty(image, x, y):
 	print("Check Image Empty")
-	var image = image_tex.get_data()
-	print("Got the data from image_tex!")
+	if x == image.get_width() or y == image.get_height():
+		return true
 	for i in range (x, x + tile_size_x):
 		for j in range (y, y + tile_size_y):
 			if not image.get_pixel(i, j).a == 0:
+				print("It has alpha!")
 				return  false
 	return true
 
