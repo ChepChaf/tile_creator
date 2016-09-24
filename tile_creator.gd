@@ -4,10 +4,9 @@ extends EditorPlugin
 var plugin_button = null
 var dialog = null
 var root = null
-var proccesing_lbl = null
+var imagepath = null
 
 var fileS = null
-var imagepath = null
 
 var tile_size_x = 16
 var tile_size_y = 16
@@ -23,7 +22,6 @@ func _enter_tree():
 	plugin_button.connect("pressed", self, "_show_dialog")
 	add_control_to_container( CONTAINER_CANVAS_EDITOR_MENU, plugin_button)
 	
-	proccesing_lbl = preload("ProcessingLabel.tscn").instance()
 	dialog = preload("ConfirmationDialog.tscn").instance()
 	
 func _show_dialog():
@@ -54,12 +52,7 @@ func _on_dialog_confirmed():
 	print("Dialog Confirmed")
 	root = get_tree().get_edited_scene_root()
 	imagepath = dialog.get_node("ImagePath").get_text()	
-	var thread = Thread.new()
-	thread.start(self, "image_divide", imagepath, Thread.PRIORITY_HIGH)
-	#get_base_control().add_child(proccesing_lbl)
-	#proccesing_lbl.popup_centered()
-	#proccesing_lbl.get_node("Label").set_text("Processing: " + str(actual) + "/" + str(total))
-	thread.wait_to_finish()
+	image_divide( imagepath )
 
 func image_divide(imagepath):
 	print("Create image")
@@ -69,45 +62,46 @@ func image_divide(imagepath):
 	var r = 0
 	var i = 0
 	#total = image.get_width() / tile_size_x * image.get_width() / tile_size_y
-	while i < image.get_height():
+	while i < image.get_width():
 		var j = 0
 		r += 1
 		var c = 0
-		while j < image.get_width():
+		while j < image.get_height():
 			#actual = r + c
 			
-			if not check_image_empty(image, j, i):
+			if check_image_not_empty(image, i, j):
 				
 				#print("Creating image texture")
-				#var image_tex = ImageTexture.new()
-				#image_tex.create_from_image(image)
+				var image_tex = ImageTexture.new()
+				image_tex.create_from_image(image)
 				#print("Created")
 				
 				print("Creating Sprite")
-				var s = Sprite.new()
+				var sprite = Sprite.new()
 				print("Created")
 				
-				s.set_texture(image) # Change to image_tex if it doesn't works
-				s.set_region(true)
-				s.set_region_rect(Rect2(j, i, tile_size_x, tile_size_y))
-				root.add_child(s)
+				sprite.set_texture(image_tex) # Change to image_tex if it doesn't works
+				sprite.set_region(true)
+				sprite.set_region_rect(Rect2(i, j, tile_size_x, tile_size_y))
+				root.add_child(sprite)
 				var pos = Vector2(r * (tile_size_x + 10), c * (tile_size_y + 10))
 				c += 1
-				s.set_pos(pos)
-				s.set_owner(root)
+				sprite.set_pos(pos)
+				sprite.set_owner(root)
+				print("After Sprite")
 			j += tile_size_y
 		i += tile_size_x
 
-func check_image_empty(image, x, y):
+func check_image_not_empty(image, x, y):
 	print("Check Image Empty")
 	if x == image.get_width() or y == image.get_height():
 		return true
 	for i in range (x, x + tile_size_x):
 		for j in range (y, y + tile_size_y):
-			if not image.get_pixel(i, j).a == 0:
+			if image.get_pixel(i, j).a == 0:
 				print("It has alpha!")
-				return  false
-	return true
+				return true
+	return false
 
 func _exit_tree():
 	plugin_button.disconnect("pressed", self, "_show_dialog")
